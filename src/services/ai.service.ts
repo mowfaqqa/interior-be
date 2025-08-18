@@ -1,0 +1,493 @@
+import OpenAI from "openai";
+import Replicate from "replicate";
+import { config } from "@/config/env";
+import {
+  AIPromptData,
+  AIGenerationResult,
+  InteriorStyle,
+  RoomType,
+} from "@/types";
+import { AppError } from "@/middleware/error.middleware";
+import logger from "@/utils/logger";
+
+// Initialize AI clients
+const openai = new OpenAI({
+  apiKey: config.ai.openai.apiKey,
+});
+
+const replicate = new Replicate({
+  auth: config.ai.replicate.apiToken,
+});
+
+export class AIService {
+  /**
+   * Generate design prompt based on room data
+   */
+  generatePrompt(data: AIPromptData): string {
+    const styleDescriptions = {
+      ART_DECO:
+        "elegant art deco style with geometric patterns, luxurious materials like marble and gold accents, bold colors, and sophisticated lighting",
+      BOHEMIAN:
+        "bohemian style with eclectic mix of patterns, rich textures, warm earthy colors, vintage furniture, and plenty of plants",
+      COASTAL:
+        "coastal style with light, airy atmosphere, nautical elements, white and blue color palette, natural materials like rope and driftwood",
+      RUSTIC:
+        "rustic style with natural wood finishes, stone elements, cozy atmosphere, earthy colors, and traditional craftsmanship",
+      CONTEMPORARY:
+        "contemporary style with clean lines, minimalist approach, neutral colors, modern furniture, and functional design",
+      ETHNIC:
+        "ethnic style with cultural patterns, traditional textiles, rich colors, handcrafted furniture, and authentic decorative elements",
+      INDUSTRIAL:
+        "industrial style with exposed brick walls, metal fixtures, concrete floors, dark colors, and urban loft atmosphere",
+      SCANDINAVIAN:
+        "scandinavian style with minimalist design, light wood tones, white and neutral colors, cozy hygge atmosphere, and functional furniture",
+      VINTAGE:
+        "vintage style with retro furniture, classic patterns, muted colors, antique accessories, and nostalgic charm",
+      MINIMALIST:
+        "minimalist style with clean lines, uncluttered spaces, neutral color palette, simple furniture, and focus on functionality",
+    };
+
+    const roomDescriptions = {
+      LIVING_ROOM:
+        "living room with comfortable seating area, entertainment center, and social space",
+      BEDROOM:
+        "bedroom with comfortable bed, storage solutions, and peaceful atmosphere",
+      KITCHEN:
+        "kitchen with modern appliances, functional workspace, and dining area",
+      BATHROOM:
+        "bathroom with modern fixtures, storage solutions, and spa-like atmosphere",
+      OFFICE:
+        "office space with ergonomic workspace, storage solutions, and productive environment",
+      DINING_ROOM:
+        "dining room with dining table, seating, and elegant atmosphere for meals",
+      BALCONY:
+        "balcony with outdoor furniture, plants, and relaxing outdoor space",
+      STUDY:
+        "study room with desk, bookshelves, and quiet learning environment",
+      HALLWAY:
+        "hallway with storage solutions, lighting, and welcoming entrance",
+      OTHER: "interior space with functional design and aesthetic appeal",
+    };
+
+    const styleDescription =
+      styleDescriptions[data.style] || "modern and stylish";
+    const roomDescription = roomDescriptions[data.roomType] || "interior space";
+
+    let prompt = `Create a beautiful interior design for a ${roomDescription} in ${styleDescription}. `;
+
+    // Add dimensions context
+    prompt += `The room dimensions are ${data.dimensions.length}m x ${data.dimensions.width}m x ${data.dimensions.height}m. `;
+
+    // Add materials
+    if (data.materials.length > 0) {
+      prompt += `Incorporate these materials: ${data.materials.join(", ")}. `;
+    }
+
+    // Add color scheme
+    if (data.ambientColor) {
+      prompt += `Use ${data.ambientColor} as the ambient color scheme. `;
+    }
+
+    // Add custom requirements
+    if (data.customPrompt) {
+      prompt += `Additional requirements: ${data.customPrompt}. `;
+    }
+
+    // Add quality specifications
+    prompt +=
+      "The design should be photorealistic, well-lit, professional interior photography style, high-resolution, and showcase the complete room layout with attention to detail and aesthetic harmony.";
+
+    return prompt;
+  }
+
+  /**
+   * Generate design using OpenAI DALL-E
+   */
+  async generateWithOpenAI(prompt: string): Promise<AIGenerationResult> {
+    try {
+      const startTime = Date.now();
+
+      logger.ai("Starting OpenAI image generation", {
+        prompt: prompt.substring(0, 100),
+      });
+
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "hd",
+        style: "natural",
+      });
+
+      const processingTime = Date.now() - startTime;
+
+      if (!response.data || response.data.length === 0) {
+        throw new AppError(
+          "No images generated by OpenAI",
+          500,
+          "AI_GENERATION_FAILED"
+        );
+      }
+
+      const imageUrls = response.data
+        .map((img) => img.url)
+        .filter(Boolean) as string[];
+
+      logger.ai("OpenAI image generation completed", {
+        imageCount: imageUrls.length,
+        processingTime,
+      });
+
+      return {
+        imageUrls,
+        prompt,
+        metadata: {
+          provider: "openai",
+          model: "dall-e-3",
+          processingTime,
+          parameters: {
+            size: "1024x1024",
+            quality: "hd",
+            style: "natural",
+          },
+        },
+      };
+    } catch (error) {
+      logger.error("OpenAI generation failed:", error);
+
+      if (error instanceof Error) {
+        if (error.message.includes("content_policy")) {
+          throw new AppError(
+            "Content policy violation. Please modify your request.",
+            400,
+            "CONTENT_POLICY_VIOLATION"
+          );
+        }
+        if (error.message.includes("rate_limit")) {
+          throw new AppError(
+            "Rate limit exceeded. Please try again later.",
+            429,
+            "RATE_LIMIT_EXCEEDED"
+          );
+        }
+      }
+
+      throw new AppError("OpenAI image generation failed", 500, "OPENAI_ERROR");
+    }
+  }
+
+  /**
+   * Generate design using Replicate Stable Diffusion
+   */
+  async generateWithReplicate(
+    prompt: string,
+    imageUrl?: string
+  ): Promise<AIGenerationResult> {
+    try {
+      const startTime = Date.now();
+
+      logger.ai("Starting Replicate image generation", {
+        prompt: prompt.substring(0, 100),
+        hasInputImage: !!imageUrl,
+      });
+
+      const input: any = {
+        prompt,
+        num_outputs: 3,
+        num_inference_steps: 50,
+        guidance_scale: 7.5,
+        width: 1024,
+        height: 1024,
+        scheduler: "DPMSolverMultistep",
+      };
+
+      if (imageUrl) {
+        input.image = imageUrl;
+        input.strength = 0.8; // How much to transform the input image
+      }
+
+      const output = await replicate.run(
+        "stability-ai/stable-diffusion-xl-base-1.0:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+        { input }
+      );
+
+      const processingTime = Date.now() - startTime;
+
+      // Handle different output formats from Replicate
+      let imageUrls: string[] = [];
+      if (Array.isArray(output)) {
+        imageUrls = output.filter((url) => typeof url === "string") as string[];
+      } else if (typeof output === "string") {
+        imageUrls = [output];
+      }
+
+      if (imageUrls.length === 0) {
+        throw new AppError(
+          "No images generated by Replicate",
+          500,
+          "AI_GENERATION_FAILED"
+        );
+      }
+
+      logger.ai("Replicate image generation completed", {
+        imageCount: imageUrls.length,
+        processingTime,
+      });
+
+      return {
+        imageUrls,
+        prompt,
+        metadata: {
+          provider: "replicate",
+          model: "stable-diffusion-xl-base-1.0",
+          processingTime,
+          parameters: input,
+        },
+      };
+    } catch (error) {
+      logger.error("Replicate generation failed:", error);
+
+      if (error instanceof Error) {
+        if (error.message.includes("NSFW")) {
+          throw new AppError(
+            "Content not suitable for generation. Please modify your request.",
+            400,
+            "CONTENT_FILTERED"
+          );
+        }
+        if (error.message.includes("rate limit")) {
+          throw new AppError(
+            "Rate limit exceeded. Please try again later.",
+            429,
+            "RATE_LIMIT_EXCEEDED"
+          );
+        }
+      }
+
+      throw new AppError(
+        "Replicate image generation failed",
+        500,
+        "REPLICATE_ERROR"
+      );
+    }
+  }
+
+  /**
+   * Generate interior design
+   */
+  async generateDesign(
+    promptData: AIPromptData,
+    options: {
+      provider?: "openai" | "replicate";
+      inputImageUrl?: string;
+    } = {}
+  ): Promise<AIGenerationResult> {
+    try {
+      const { provider = "replicate", inputImageUrl } = options;
+
+      // Generate the prompt
+      const prompt = this.generatePrompt(promptData);
+
+      logger.ai("Generating interior design", {
+        provider,
+        roomType: promptData.roomType,
+        style: promptData.style,
+        hasInputImage: !!inputImageUrl,
+      });
+
+      // Generate based on provider
+      let result: AIGenerationResult;
+
+      if (provider === "openai") {
+        // OpenAI doesn't support image-to-image, so we ignore inputImageUrl
+        result = await this.generateWithOpenAI(prompt);
+      } else {
+        result = await this.generateWithReplicate(prompt, inputImageUrl);
+      }
+
+      logger.ai("Interior design generation completed", {
+        provider,
+        imageCount: result.imageUrls.length,
+        processingTime: result.metadata.processingTime,
+      });
+
+      return result;
+    } catch (error) {
+      logger.error("Design generation failed:", error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        "Design generation failed",
+        500,
+        "DESIGN_GENERATION_ERROR"
+      );
+    }
+  }
+
+  /**
+   * Enhance prompt with AI assistance
+   */
+  async enhancePrompt(
+    userPrompt: string,
+    roomType: RoomType,
+    style: InteriorStyle
+  ): Promise<string> {
+    try {
+      const enhancementPrompt = `
+        You are an interior design expert. Enhance this user prompt for AI image generation:
+        
+        User prompt: "${userPrompt}"
+        Room type: ${roomType}
+        Style: ${style}
+        
+        Create a detailed, professional prompt that will generate a beautiful interior design image. 
+        Include specific details about lighting, materials, colors, furniture placement, and atmosphere.
+        Keep it under 300 words and focus on visual elements.
+      `;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert interior designer who creates detailed prompts for AI image generation.",
+          },
+          {
+            role: "user",
+            content: enhancementPrompt,
+          },
+        ],
+        max_tokens: 300,
+        temperature: 0.7,
+      });
+
+      const enhancedPrompt = response.choices[0]?.message?.content?.trim();
+
+      if (!enhancedPrompt) {
+        throw new AppError(
+          "Failed to enhance prompt",
+          500,
+          "PROMPT_ENHANCEMENT_FAILED"
+        );
+      }
+
+      logger.ai("Prompt enhanced successfully", {
+        originalLength: userPrompt.length,
+        enhancedLength: enhancedPrompt.length,
+      });
+
+      return enhancedPrompt;
+    } catch (error) {
+      logger.error("Prompt enhancement failed:", error);
+
+      // Fallback to original prompt if enhancement fails
+      logger.warn("Using original prompt as fallback");
+      return userPrompt;
+    }
+  }
+
+  /**
+   * Get AI service health status
+   */
+  async getHealthStatus(): Promise<{
+    openai: boolean;
+    replicate: boolean;
+    timestamp: string;
+  }> {
+    const results = {
+      openai: false,
+      replicate: false,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Test OpenAI
+    try {
+      await openai.models.list();
+      results.openai = true;
+    } catch (error) {
+      logger.error("OpenAI health check failed:", error);
+    }
+
+    // Test Replicate (simple check)
+    try {
+      // Replicate doesn't have a simple health check endpoint
+      // so we'll assume it's healthy if we can create the client
+      results.replicate = !!replicate;
+    } catch (error) {
+      logger.error("Replicate health check failed:", error);
+    }
+
+    return results;
+  }
+
+  /**
+   * Estimate generation cost (placeholder for future implementation)
+   */
+  estimateGenerationCost(
+    provider: "openai" | "replicate",
+    imageCount: number = 1
+  ): { estimatedCost: number; currency: string } {
+    // These are approximate costs as of 2024 - should be updated regularly
+    const costs = {
+      openai: 0.04, // DALL-E 3 cost per image (1024x1024, HD)
+      replicate: 0.012, // Stable Diffusion XL approximate cost per image
+    };
+
+    const costPerImage = costs[provider] || 0;
+    const estimatedCost = costPerImage * imageCount;
+
+    return {
+      estimatedCost: Math.round(estimatedCost * 100) / 100, // Round to 2 decimal places
+      currency: "USD",
+    };
+  }
+
+  /**
+   * Validate prompt content for safety
+   */
+  validatePromptContent(prompt: string): {
+    isValid: boolean;
+    issues: string[];
+  } {
+    const issues: string[] = [];
+
+    // Basic content filtering
+    const restrictedTerms = [
+      "nsfw",
+      "nude",
+      "sexual",
+      "violence",
+      "weapon",
+      "drug",
+      "hate",
+      "discrimination",
+      "illegal",
+      "harmful",
+    ];
+
+    const lowerPrompt = prompt.toLowerCase();
+
+    for (const term of restrictedTerms) {
+      if (lowerPrompt.includes(term)) {
+        issues.push(`Contains restricted content: ${term}`);
+      }
+    }
+
+    // Check prompt length
+    if (prompt.length > 1000) {
+      issues.push("Prompt is too long (max 1000 characters)");
+    }
+
+    if (prompt.length < 10) {
+      issues.push("Prompt is too short (min 10 characters)");
+    }
+
+    return {
+      isValid: issues.length === 0,
+      issues,
+    };
+  }
+}

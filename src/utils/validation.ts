@@ -1,5 +1,6 @@
 import Joi from "joi";
-import { UserType, ProjectType, RoomType, InteriorStyle } from "@/types";
+import { ProjectType, RoomType, InteriorStyle } from "@/types";
+import { UserType } from "@prisma/client";
 
 // Base validation schemas
 export const schemas = {

@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { User } from "@prisma/client";
+import { User, UserType } from "@prisma/client";
 
 // Extend Express Request to include user
 export interface AuthenticatedRequest extends Request {
@@ -119,11 +119,6 @@ export interface GenerateDesignDto {
   aiProvider?: "openai" | "replicate";
 }
 
-// Enums (re-exported from Prisma for convenience)
-export enum UserType {
-  INDIVIDUAL = "INDIVIDUAL",
-  BUSINESS = "BUSINESS",
-}
 
 export enum ProjectType {
   RESIDENTIAL = "RESIDENTIAL",
