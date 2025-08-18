@@ -1,0 +1,172 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum ProjectType {
+  RESIDENTIAL
+  OFFICE
+}
+
+enum RoomType {
+  LIVING_ROOM
+  BEDROOM
+  KITCHEN
+  BATHROOM
+  OFFICE
+  DINING_ROOM
+  BALCONY
+  STUDY
+  HALLWAY
+  OTHER
+}
+
+enum InteriorStyle {
+  ART_DECO
+  BOHEMIAN
+  COASTAL
+  RUSTIC
+  CONTEMPORARY
+  ETHNIC
+  INDUSTRIAL
+  SCANDINAVIAN
+  VINTAGE
+  MINIMALIST
+}
+
+enum DesignStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  password     String
+  userType     UserType
+  organization String?
+  isVerified   Boolean   @default(false)
+  lastLogin    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  projects     Project[]
+  sessions     Session[]
+  
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  type        ProjectType
+  style       InteriorStyle
+  isActive    Boolean       @default(true)
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rooms       Room[]
+  
+  @@map("projects")
+}
+
+model Room {
+  id               String    @id @default(cuid())
+  projectId        String
+  name             String?
+  type             RoomType
+  length           Float
+  width            Float
+  height           Float
+  materials        String[]
+  ambientColor     String?
+  freePrompt       String?
+  originalImageUrl String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  project          Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  designs          Design[]
+  uploads          Upload[]
+  
+  @@map("rooms")
+}
+
+model Design {
+  id          String       @id @default(cuid())
+  roomId      String
+  imageUrl    String
+  prompt      String
+  aiProvider  String       // "openai" or "replicate"
+  status      DesignStatus @default(PENDING)
+  metadata    Json?
+  processingTime Int?       // in milliseconds
+  error       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  room        Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  
+  @@map("designs")
+}
+
+model Upload {
+  id           String   @id @default(cuid())
+  roomId       String?
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  cloudinaryId String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  
+  room         Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  
+  @@map("uploads")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String
+  resourceId String?
+  metadata  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  
+  @@map("audit_logs")
+}
