@@ -1,8 +1,10 @@
-import { Request } from 'express';
-import { User } from '@prisma/client';
+import { Request } from "express";
+import { User } from "@prisma/client";
 
 // Extend Express Request to include user
 export interface AuthenticatedRequest extends Request {
+  req: any;
+  res: any;
   user?: User;
 }
 
@@ -114,51 +116,51 @@ export interface UpdateRoomDto {
 export interface GenerateDesignDto {
   roomId: string;
   customPrompt?: string;
-  aiProvider?: 'openai' | 'replicate';
+  aiProvider?: "openai" | "replicate";
 }
 
 // Enums (re-exported from Prisma for convenience)
 export enum UserType {
-  INDIVIDUAL = 'INDIVIDUAL',
-  BUSINESS = 'BUSINESS'
+  INDIVIDUAL = "INDIVIDUAL",
+  BUSINESS = "BUSINESS",
 }
 
 export enum ProjectType {
-  RESIDENTIAL = 'RESIDENTIAL',
-  OFFICE = 'OFFICE'
+  RESIDENTIAL = "RESIDENTIAL",
+  OFFICE = "OFFICE",
 }
 
 export enum RoomType {
-  LIVING_ROOM = 'LIVING_ROOM',
-  BEDROOM = 'BEDROOM',
-  KITCHEN = 'KITCHEN',
-  BATHROOM = 'BATHROOM',
-  OFFICE = 'OFFICE',
-  DINING_ROOM = 'DINING_ROOM',
-  BALCONY = 'BALCONY',
-  STUDY = 'STUDY',
-  HALLWAY = 'HALLWAY',
-  OTHER = 'OTHER'
+  LIVING_ROOM = "LIVING_ROOM",
+  BEDROOM = "BEDROOM",
+  KITCHEN = "KITCHEN",
+  BATHROOM = "BATHROOM",
+  OFFICE = "OFFICE",
+  DINING_ROOM = "DINING_ROOM",
+  BALCONY = "BALCONY",
+  STUDY = "STUDY",
+  HALLWAY = "HALLWAY",
+  OTHER = "OTHER",
 }
 
 export enum InteriorStyle {
-  ART_DECO = 'ART_DECO',
-  BOHEMIAN = 'BOHEMIAN',
-  COASTAL = 'COASTAL',
-  RUSTIC = 'RUSTIC',
-  CONTEMPORARY = 'CONTEMPORARY',
-  ETHNIC = 'ETHNIC',
-  INDUSTRIAL = 'INDUSTRIAL',
-  SCANDINAVIAN = 'SCANDINAVIAN',
-  VINTAGE = 'VINTAGE',
-  MINIMALIST = 'MINIMALIST'
+  ART_DECO = "ART_DECO",
+  BOHEMIAN = "BOHEMIAN",
+  COASTAL = "COASTAL",
+  RUSTIC = "RUSTIC",
+  CONTEMPORARY = "CONTEMPORARY",
+  ETHNIC = "ETHNIC",
+  INDUSTRIAL = "INDUSTRIAL",
+  SCANDINAVIAN = "SCANDINAVIAN",
+  VINTAGE = "VINTAGE",
+  MINIMALIST = "MINIMALIST",
 }
 
 export enum DesignStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED'
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
 }
 
 // AI Service Types

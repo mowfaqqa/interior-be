@@ -18,7 +18,7 @@ class Database {
       });
 
       // Add middleware for logging
-      Database.instance.$use(async (params: any, next: NextFunction) => {
+      Database.instance.$use(async (params: any, next: any) => {
         const before = Date.now();
         const result = await next(params);
         const after = Date.now();
