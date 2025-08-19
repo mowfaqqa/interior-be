@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { CloudinaryUtil } from "@/utils/cloudinary";
-import { AppError } from "@/middleware/error.middleware";
-import { createSafeFilename } from "@/middleware/upload.middleware";
-import logger from "@/utils/logger";
+import { CloudinaryUtil } from "../utils/cloudinary";
+import { AppError } from "../middleware/error.middleware";
+import { createSafeFilename } from "../middleware/upload.middleware";
+import logger from "../utils/logger";
 
 export class UploadService {
   constructor(private prisma: PrismaClient) {}

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
-import { ApiResponse, ValidationError } from '@/types';
-import { ValidationUtil } from '@/utils/validation';
-import logger from '@/utils/logger';
+import { ApiResponse, ValidationError } from '../types';
+import { ValidationUtil } from '../utils/validation';
+import logger from '../utils/logger';
 
 /**
  * Generic validation middleware factory

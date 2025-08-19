@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
-import { ApiResponse } from "@/types";
-import { config } from "@/config/env";
-import logger from "@/utils/logger";
+import { ApiResponse } from "../types";
+import { config } from "../config/env";
+import logger from "../utils/logger";
 
 /**
  * Custom error class

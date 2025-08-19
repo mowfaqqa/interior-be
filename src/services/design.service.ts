@@ -1,8 +1,8 @@
 import { PrismaClient, DesignStatus } from "@prisma/client";
-import { GenerateDesignDto, DesignQuery, AIPromptData } from "@/types";
-import { AIService } from "@/services/ai.service";
-import { AppError } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+import { GenerateDesignDto, DesignQuery, AIPromptData } from "../types";
+import { AIService } from "../services/ai.service";
+import { AppError } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class DesignService {
   private aiService: AIService;

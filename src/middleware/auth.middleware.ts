@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
-import { JwtUtil } from "@/utils/jwt";
-import { prisma } from "@/config/database";
-import logger from "@/utils/logger";
+import { JwtUtil } from "../utils/jwt";
+import { prisma } from "../config/database";
+import logger from "../utils/logger";
 
 /**
  * Middleware to authenticate JWT tokens

@@ -1,14 +1,14 @@
 import OpenAI from "openai";
 import Replicate from "replicate";
-import { config } from "@/config/env";
+import { config } from "../config/env";
 import {
   AIPromptData,
   AIGenerationResult,
   InteriorStyle,
   RoomType,
-} from "@/types";
-import { AppError } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+} from "../types";
+import { AppError } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 // Initialize AI clients
 const openai = new OpenAI({

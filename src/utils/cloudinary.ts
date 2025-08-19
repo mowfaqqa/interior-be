@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
-import { config } from "@/config/env";
+import { config } from "../config/env";
 import logger from "./logger";
-import { CloudinaryResponse } from "@/types";
+import { CloudinaryResponse } from "../types";
 
 // Configure Cloudinary
 cloudinary.config({

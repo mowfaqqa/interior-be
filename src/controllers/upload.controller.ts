@@ -1,9 +1,9 @@
 import { Response, NextFunction } from "express";
-import { AuthenticatedRequest, ApiResponse } from "@/types";
-import { UploadService } from "@/services/upload.service";
-import { prisma } from "@/config/database";
-import { asyncHandler } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+import { AuthenticatedRequest, ApiResponse } from "../types";
+import { UploadService } from "../services/upload.service";
+import { prisma } from "../config/database";
+import { asyncHandler } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class UploadController {
   private uploadService: UploadService;

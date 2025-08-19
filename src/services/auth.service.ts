@@ -5,12 +5,12 @@ import {
   UserProfile,
   LoginResponse,
   JwtPayload,
-} from "@/types";
-import { BcryptUtil } from "@/utils/bcrypt";
-import { JwtUtil } from "@/utils/jwt";
-import { AppError } from "@/middleware/error.middleware";
-import { config } from "@/config/env";
-import logger from "@/utils/logger";
+} from "../types";
+import { BcryptUtil } from "../utils/bcrypt";
+import { JwtUtil } from "../utils/jwt";
+import { AppError } from "../middleware/error.middleware";
+import { config } from "../config/env";
+import logger from "../utils/logger";
 
 export class AuthService {
   constructor(private prisma: PrismaClient) {}

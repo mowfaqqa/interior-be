@@ -6,21 +6,21 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import swaggerUi from "swagger-ui-express";
 
-import { config } from "@/config/env";
-import { specs } from "@/config/swagger";
-import Database from "@/config/database";
-import logger from "@/utils/logger";
+import { config } from "./config/env";
+import { specs } from "./config/swagger";
+import Database from "./config/database";
+import logger from "./utils/logger";
 
 // Middleware
-import { errorHandler, notFoundHandler } from "@/middleware/error.middleware";
-import { sanitizeInput } from "@/middleware/validation.middleware";
+import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
+import { sanitizeInput } from "./middleware/validation.middleware";
 
 // Routes
-import authRoutes from "@/routes/auth.routes";
-import projectRoutes from "@/routes/project.routes";
-import roomRoutes from "@/routes/room.routes";
-import designRoutes from "@/routes/design.routes";
-import uploadRoutes from "@/routes/upload.routes";
+import authRoutes from "./routes/auth.routes";
+import projectRoutes from "./routes/project.routes";
+import roomRoutes from "./routes/room.routes";
+import designRoutes from "./routes/design.routes";
+import uploadRoutes from "./routes/upload.routes";
 
 // Create Express application
 const app = express();

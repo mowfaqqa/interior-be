@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { AuthController } from "@/controllers/auth.controller";
-import { authenticate } from "@/middleware/auth.middleware";
+import { AuthController } from "../controllers/auth.controller";
+import { authenticate } from "../middleware/auth.middleware";
 import {
   validateBody,
   validateParams,
-} from "@/middleware/validation.middleware";
-import { authSchemas } from "@/utils/validation";
+} from "../middleware/validation.middleware";
+import { authSchemas } from "../utils/validation";
 import Joi from "joi";
 
 const router = Router();

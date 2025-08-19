@@ -4,11 +4,11 @@ import {
   ApiResponse,
   CreateRoomDto,
   UpdateRoomDto,
-} from "@/types";
-import { RoomService } from "@/services/room.service";
-import { prisma } from "@/config/database";
-import { asyncHandler } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+} from "../types";
+import { RoomService } from "../services/room.service";
+import { prisma } from "../config/database";
+import { asyncHandler } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class RoomController {
   private roomService: RoomService;

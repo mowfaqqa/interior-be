@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { CreateRoomDto, UpdateRoomDto, RoomQuery } from "@/types";
-import { AppError } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+import { CreateRoomDto, UpdateRoomDto, RoomQuery } from "../types";
+import { AppError } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class RoomService {
   constructor(private prisma: PrismaClient) {}

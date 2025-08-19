@@ -1,9 +1,9 @@
 import { Response, NextFunction } from "express";
-import { AuthenticatedRequest, ApiResponse, GenerateDesignDto } from "@/types";
-import { DesignService } from "@/services/design.service";
-import { prisma } from "@/config/database";
-import { asyncHandler } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+import { AuthenticatedRequest, ApiResponse, GenerateDesignDto } from "../types";
+import { DesignService } from "../services/design.service";
+import { prisma } from "../config/database";
+import { asyncHandler } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class DesignController {
   private designService: DesignService;

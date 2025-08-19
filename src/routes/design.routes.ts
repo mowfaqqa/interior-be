@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { DesignController } from "@/controllers/design.controller";
-import { authenticate } from "@/middleware/auth.middleware";
+import { DesignController } from "../controllers/design.controller";
+import { authenticate } from "../middleware/auth.middleware";
 import {
   validateBody,
   validateParams,
   validateQuery,
-} from "@/middleware/validation.middleware";
-import { designSchemas } from "@/utils/validation";
+} from "../middleware/validation.middleware";
+import { designSchemas } from "../utils/validation";
 import Joi from "joi";
 
 const router = Router();

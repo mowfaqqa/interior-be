@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ProjectType, RoomType, InteriorStyle } from "@/types";
+import { ProjectType, RoomType, InteriorStyle } from "../types";
 import { UserType } from "@prisma/client";
 
 // Base validation schemas

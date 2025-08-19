@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { config } from "@/config/env";
+import { config } from "../config/env";
 import logger from "./logger";
 
 export class BcryptUtil {

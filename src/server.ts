@@ -1,7 +1,7 @@
 import app from "./app";
-import { config } from "@/config/env";
-import Database from "@/config/database";
-import logger from "@/utils/logger";
+import { config } from "./config/env";
+import Database from "./config/database";
+import logger from "./utils/logger";
 
 // Connect to database
 async function connectDatabase() {

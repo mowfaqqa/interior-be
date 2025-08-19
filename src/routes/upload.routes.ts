@@ -1,17 +1,17 @@
 import { Router } from "express";
-import { UploadController } from "@/controllers/upload.controller";
-import { authenticate } from "@/middleware/auth.middleware";
+import { UploadController } from "../controllers/upload.controller";
+import { authenticate } from "../middleware/auth.middleware";
 import {
   uploadSingle,
   validateUploadedFile,
   generateSafeFilename,
   cleanupTempFiles,
-} from "@/middleware/upload.middleware";
+} from "../middleware/upload.middleware";
 import {
   validateFile,
   validateParams,
   validateQuery,
-} from "@/middleware/validation.middleware";
+} from "../middleware/validation.middleware";
 import Joi from "joi";
 
 const router = Router();

@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { CreateProjectDto, UpdateProjectDto, ProjectQuery } from "@/types";
-import { AppError } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+import { CreateProjectDto, UpdateProjectDto, ProjectQuery } from "../types";
+import { AppError } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class ProjectService {
   constructor(private prisma: PrismaClient) {}

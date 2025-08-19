@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { config } from "./env";
-import logger from "@/utils/logger";
+import logger from "../utils/logger";
 import { NextFunction } from "express";
 
 // Prisma Client singleton
@@ -18,22 +18,22 @@ class Database {
       });
 
       // Add middleware for logging
-      Database.instance.$use(async (params: any, next: any) => {
-        const before = Date.now();
-        const result = await next(params);
-        const after = Date.now();
+      //   Database.instance.$use(async (params: any, next: any) => {
+      //     const before = Date.now();
+      //     const result = await next(params);
+      //     const after = Date.now();
 
-        logger.debug(
-          `Query ${params.model}.${params.action} took ${after - before}ms`
-        );
-        return result;
-      });
+      //     logger.debug(
+      //       `Query ${params.model}.${params.action} took ${after - before}ms`
+      //     );
+      //     return result;
+      //   });
 
-      // Add middleware for soft deletes (if needed)
-      Database.instance.$use(async (params: any, next: NextFunction) => {
-        // Add soft delete logic here if required
-        return next(params);
-      });
+      //   // Add middleware for soft deletes (if needed)
+      //   Database.instance.$use(async (params: any, next: NextFunction) => {
+      //     // Add soft delete logic here if required
+      //     return next(params);
+      //   });
     }
 
     return Database.instance;

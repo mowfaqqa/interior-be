@@ -119,7 +119,6 @@ export interface GenerateDesignDto {
   aiProvider?: "openai" | "replicate";
 }
 
-
 export enum ProjectType {
   RESIDENTIAL = "RESIDENTIAL",
   OFFICE = "OFFICE",

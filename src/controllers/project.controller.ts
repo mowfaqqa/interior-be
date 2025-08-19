@@ -4,11 +4,11 @@ import {
   ApiResponse,
   CreateProjectDto,
   UpdateProjectDto,
-} from "@/types";
-import { ProjectService } from "@/services/project.service";
-import { prisma } from "@/config/database";
-import { asyncHandler } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+} from "../types";
+import { ProjectService } from "../services/project.service";
+import { prisma } from "../config/database";
+import { asyncHandler } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class ProjectController {
   private projectService: ProjectService;

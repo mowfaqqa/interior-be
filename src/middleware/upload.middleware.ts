@@ -1,8 +1,8 @@
 import multer from "multer";
 import { Request, Response, NextFunction } from "express";
-import { config } from "@/config/env";
-import { ApiResponse } from "@/types";
-import logger from "@/utils/logger";
+import { config } from "../config/env";
+import { ApiResponse } from "../types";
+import logger from "../utils/logger";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 

@@ -4,11 +4,11 @@ import {
   ApiResponse,
   RegisterDto,
   LoginDto,
-} from "@/types";
-import { AuthService } from "@/services/auth.service";
-import { prisma } from "@/config/database";
-import { asyncHandler } from "@/middleware/error.middleware";
-import logger from "@/utils/logger";
+} from "../types";
+import { AuthService } from "../services/auth.service";
+import { prisma } from "../config/database";
+import { asyncHandler } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class AuthController {
   private authService: AuthService;
