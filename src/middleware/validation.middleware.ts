@@ -164,15 +164,20 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction): 
   try {
     // Recursively sanitize object properties
     const sanitizeObject = (obj: any): any => {
+      // Base case: if it's a string, sanitize it and return
       if (typeof obj === 'string') {
         return ValidationUtil.sanitizeString(obj);
       }
       
+      // Recursive case: if it's an array, sanitize each element
       if (Array.isArray(obj)) {
         return obj.map(sanitizeObject);
       }
       
+      // Recursive case: if it's an object, sanitize its properties
       if (obj && typeof obj === 'object') {
+        // Create a new object or modify in-place
+        // For req.body and req.params, it's safer to reassign
         const sanitized: any = {};
         for (const [key, value] of Object.entries(obj)) {
           sanitized[key] = sanitizeObject(value);
@@ -180,20 +185,26 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction): 
         return sanitized;
       }
       
+      // Return the value as is if it's not a string, array, or object
       return obj;
     };
 
-    // Sanitize body, query, and params
+    // Sanitize body and params (reassigning is okay for these)
     if (req.body) {
       req.body = sanitizeObject(req.body);
     }
     
-    if (req.query) {
-      req.query = sanitizeObject(req.query);
-    }
-    
     if (req.params) {
       req.params = sanitizeObject(req.params);
+    }
+
+    // Sanitize query parameters (MUST BE MODIFIED IN-PLACE)
+    if (req.query) {
+      for (const key in req.query) {
+        if (Object.prototype.hasOwnProperty.call(req.query, key)) {
+          (req.query as any)[key] = sanitizeObject(req.query[key]);
+        }
+      }
     }
 
     next();
